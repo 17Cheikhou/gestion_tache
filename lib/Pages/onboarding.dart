@@ -10,7 +10,7 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  PageController _pageController = PageController(); // Contrôle la navigation
+  final PageController _pageController = PageController(); // Contrôle la navigation
   int currentPage = 0; // Page actuelle
 
   // Liste des pages d'onboarding avec animations Lottie et textes dynamiques

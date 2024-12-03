@@ -5,15 +5,14 @@ class MainLayout extends StatelessWidget {
   final Widget child; // Widget enfant pour chaque écran
   final String title; // Titre de l'AppBar
 
-  const MainLayout({Key? key, required this.child, required this.title})
-      : super(key: key);
+  const MainLayout({super.key, required this.child, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: _scaffoldKey, // Clé pour le Drawer
+      key: scaffoldKey, // Clé pour le Drawer
       appBar: AppBar(
         title: Text(
           title,
@@ -24,7 +23,7 @@ class MainLayout extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white, size: 28),
           onPressed: () {
-            _scaffoldKey.currentState?.openDrawer(); // Ouvre le Drawer
+            scaffoldKey.currentState?.openDrawer(); // Ouvre le Drawer
           },
         ),
       ),

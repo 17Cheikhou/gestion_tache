@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_tache/Pages/home_Page.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io'; // Pour gérer les fichiers d'image
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key, required this.title});
@@ -17,8 +18,20 @@ class _MyProfilePageState extends State<MyProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _telephoneController = TextEditingController();
 
-  // GlobalKey pour gérer le Drawer
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Variable pour stocker l'image choisie
+  File? _imageFile;
+
+  // Méthode pour choisir une image depuis la galerie
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -29,181 +42,160 @@ class _MyProfilePageState extends State<MyProfilePage> {
     super.dispose();
   }
 
-  // Méthode pour afficher une alerte lors de la déconnexion
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Déconnexion"),
-          content: Text("Voulez-vous vraiment vous déconnecter ?"),
-          actions: [
-            TextButton(
-              child: Text("Annuler"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text("Se déconnecter"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Ajouter la logique pour déconnexion ici
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Méthode pour modifier les informations personnelles
-  void _editProfile() {
-    // Logique pour modifier le profil (par exemple ouvrir une nouvelle page ou un modal)
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Profil modifié avec succès !"),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey, // Assignation du GlobalKey
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: TextStyle(color: Colors.white, fontSize: 22),
-        ),
+        title: Text(widget.title),
         backgroundColor: Color(0xFF0F91DA),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white, size: 28),
-          onPressed: () {
-            // Utiliser le GlobalKey pour ouvrir le drawer
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-      ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(
-                "John Doe",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              accountEmail: Text("johndoe@example.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/profile.jpg'),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.teal,
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle, color: Color(0xFF0F91DA)),
-              title: Text('Accueil', style: TextStyle(fontSize: 16)),
-              onTap: () {
-                // Naviguer vers la page de profil lorsque l'utilisateur clique sur "Déconnexion"
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(
-                            title: 'Accueil',
-                          )), // Rediriger vers la page de profil
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings, color: Color(0xFF0F91DA)),
-              title: Text('Paramètres', style: TextStyle(fontSize: 16)),
-              onTap: () {
-                // Navigation vers paramètres
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.logout, color: Colors.red),
-              title: Text('Déconnexion', style: TextStyle(fontSize: 16)),
-              onTap: _showLogoutDialog,
-            ),
-          ],
-        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Prénom",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(
-              controller: _prenomController,
-              decoration: InputDecoration(
-                hintText: "Entrez votre prénom",
-                border: OutlineInputBorder(),
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Card(
+            elevation: 6, // Ombres pour donner un effet de profondeur
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  // Image de profil avec bouton pour changer
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _imageFile != null
+                            ? FileImage(_imageFile!)
+                            : AssetImage('assets/images/profile.jpg')
+                                as ImageProvider,
+                        child: _imageFile == null
+                            ? Icon(Icons.camera_alt, color: Colors.white)
+                            : null,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+
+                  // Champs de formulaire
+                  _buildInputField(
+                    label: "Prénom",
+                    controller: _prenomController,
+                    hintText: "Entrez votre prénom",
+                    icon: Icons.person,
+                  ),
+                  SizedBox(height: 15),
+                  _buildInputField(
+                    label: "Nom",
+                    controller: _nomController,
+                    hintText: "Entrez votre nom",
+                    icon: Icons.person,
+                  ),
+                  SizedBox(height: 15),
+                  _buildInputField(
+                    label: "Email",
+                    controller: _emailController,
+                    hintText: "Entrez votre email",
+                    icon: Icons.email,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  SizedBox(height: 15),
+                  _buildInputField(
+                    label: "Téléphone",
+                    controller: _telephoneController,
+                    hintText: "Entrez votre numéro de téléphone",
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  SizedBox(height: 25),
+
+                  // Boutons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Déconnexion réussie !")),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text("Déconnexion"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Profil modifié !")),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF0F91DA),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text("Modifier mes infos"),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 10),
-            Text("Nom",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(
-              controller: _nomController,
-              decoration: InputDecoration(
-                hintText: "Entrez votre nom",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text("Email",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: "Entrez votre email",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text("Téléphone",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(
-              controller: _telephoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                hintText: "Entrez votre numéro de téléphone",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _showLogoutDialog,
-                  child: Text("Déconnexion"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                ),
-                ElevatedButton(
-                  onPressed: _editProfile,
-                  child: Text("Modifier mes infos"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
 
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MyProfilePage(title: 'Gestion des Tâches');
+  // Widget pour construire les champs de saisie
+  Widget _buildInputField({
+    required String label,
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F91DA),
+          ),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: Icon(icon, color: Color(0xFF0F91DA)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF0F91DA), width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
