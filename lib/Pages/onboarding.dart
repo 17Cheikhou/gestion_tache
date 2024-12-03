@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tache/Pages/home_Page.dart';
-import 'package:lottie/lottie.dart'; // Assurez-vous que Lottie est bien ajouté dans pubspec.yaml
+import 'package:lottie/lottie.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -72,19 +72,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   // Méthode pour rediriger après avoir terminé l'onboarding
-  void _onGetStarted() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-          builder: (context) => const MyHomePage(
-                title: "Accueil",
-              )), // Remplacer par ta page d'accueil
-    );
+  void _onNextPage() {
+    if (currentPage < onboardingPages.length - 1) {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context) => const MyHomePage(
+                  title: "Accueil",
+                )),
+      );
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    // Ajoute un listener pour observer les changements dans le PageView
+    // Ajout d'un listener pour observer les changements dans le PageView
     _pageController.addListener(() {
       int nextPage = _pageController.page?.round() ?? 0;
       if (nextPage != currentPage) {
@@ -109,12 +116,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 page["title"]!,
                 page["description"]!,
                 page["animation"]!,
-                page[
-                    "backgroundColor"], // Passez la couleur de fond au constructeur
+                page["backgroundColor"],
               );
             }).toList(),
           ),
-          // Indicateur de progression et bouton
+          // Indicateur de progression et icône de navigation
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -140,11 +146,32 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Bouton "Get Started" qui redirige
+                // Afficher l'icône uniquement sur la troisième page
                 if (currentPage == onboardingPages.length - 1)
-                  ElevatedButton(
-                    onPressed: _onGetStarted,
-                    child: const Text("Get Started"),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: GestureDetector(
+                      onTap: _onNextPage,
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue, 
+                          shape: BoxShape.circle, // Cercle autour de l'icône
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 5,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white, // Couleur de l'icône
+                          size: 30,
+                        ),
+                      ),
+                    ),
                   ),
                 const SizedBox(height: 10),
               ],

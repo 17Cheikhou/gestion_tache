@@ -21,7 +21,7 @@ class _MyLoadingPageState extends State<MyLoadingPage> {
   }
 
   Future<Timer> chargeAnimation() async {
-    return Timer(const Duration(seconds: 3), chargement);
+    return Timer(const Duration(seconds: 5), chargement);
   }
 
   chargement() {

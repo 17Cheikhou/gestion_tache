@@ -68,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
               leading: Icon(Icons.settings, color: Color(0xFF0F91DA)),
               title: Text('Paramètres', style: TextStyle(fontSize: 16)),
               onTap: () {
-                // Handle settings navigation
               },
             ),
             Divider(),
