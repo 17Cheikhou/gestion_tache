@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tache/Pages/chargement.dart';
+import 'package:gestion_tache/Pages/connexion_page.dart';
+import 'package:gestion_tache/Pages/inscription_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyLoadingPage(
-        title: 'Accueil',
+        title: 'Loading',
       ), // Page d'onboarding au démarrage
     );
   }

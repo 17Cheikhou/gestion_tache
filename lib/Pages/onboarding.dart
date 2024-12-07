@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tache/Pages/home_Page.dart';
+import 'package:gestion_tache/Pages/inscription_page.dart';
 import 'package:lottie/lottie.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -38,19 +39,38 @@ class _OnboardingPageState extends State<OnboardingPage> {
   ];
 
   // Méthode pour construire chaque page avec animation Lottie et texte dynamique
-  static Widget _buildPage(String title, String description, String animation,
-      Color backgroundColor) {
+  Widget _buildPage(String title, String description, String animation,
+      Color backgroundColor, int currentPage) {
     return Container(
       color: backgroundColor, // Utilisez la couleur de fond passée en paramètre
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Affichage de l'animation Lottie
           Expanded(
             child: Lottie.asset(
               animation,
               fit: BoxFit.cover,
             ),
           ),
+          // Indicateur de progression entre l'animation et le titre
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              3, // Le nombre total de pages
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.only(right: 5),
+                height: 10,
+                width:  currentPage == index ? 20 : 10, // La taille de l'indicateur varie
+                decoration: BoxDecoration(
+                  color: currentPage == index ? Colors.blue : Colors.grey,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 20), // Espacement entre l'indicateur et le titre
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: Text(
@@ -81,8 +101,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-            builder: (context) => const MyHomePage(
-                  title: "Accueil",
+            builder: (context) => const SignupPage(
+                  title: "Inscription",
                 )),
       );
     }
@@ -91,7 +111,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   void initState() {
     super.initState();
-    // Ajout d'un listener pour observer les changements dans le PageView
+    // Ajoute un listener pour observer les changements dans le PageView
     _pageController.addListener(() {
       int nextPage = _pageController.page?.round() ?? 0;
       if (nextPage != currentPage) {
@@ -105,7 +125,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Onboarding")),
+      appBar: AppBar(title: const Text("Gestion des Taches")),
       body: Stack(
         children: [
           // Le défilement des pages avec contenu interactif
@@ -117,6 +137,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 page["description"]!,
                 page["animation"]!,
                 page["backgroundColor"],
+                currentPage, // Passer currentPage à la méthode
               );
             }).toList(),
           ),
@@ -126,26 +147,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Indicateur de progression
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    onboardingPages.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.only(right: 5),
-                      height: 10,
-                      width: currentPage == index
-                          ? 20
-                          : 10, // La taille de l'indicateur varie
-                      decoration: BoxDecoration(
-                        color: currentPage == index ? Colors.blue : Colors.grey,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
                 // Afficher l'icône uniquement sur la troisième page
                 if (currentPage == onboardingPages.length - 1)
                   Align(
@@ -156,7 +157,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.blue, 
-                          shape: BoxShape.circle, // Cercle autour de l'icône
+                          shape: BoxShape.circle, 
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
